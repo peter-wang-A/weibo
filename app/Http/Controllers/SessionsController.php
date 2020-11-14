@@ -19,16 +19,19 @@ class SessionsController extends Controller
             'email' => 'required|email|max:255',
             'password' => 'required',
         ]);
-            if(Auth::attempt($credentails)){
-                session()->flash('success','欢迎回来');
-                return redirect()->route('users.show',Auth::user());
-            }
 
+        if (Auth::attempt($credentails,$request->has('remenber'))) {
+            session()->flash('success', '欢迎回来');
+            return redirect()->route('users.show', Auth::user());
+        }else{
+         session()->flash('danger','邮箱或密码不正确');
+         return redirect()->back()->withInput();
+        }
     }
-    public function destroy ()
+    public function destroy()
     {
         Auth::logout();
-        session()->flash('success','您已成功退出');
+        session()->flash('success', '您已成功退出');
         return redirect('login');
     }
 }
