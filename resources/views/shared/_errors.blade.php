@@ -1,3 +1,4 @@
+{{-- 非空验证报错信息 --}}
 @if (count($errors) > 0)
   <div class="alert alert-danger">
       <ul>
