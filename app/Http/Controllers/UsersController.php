@@ -27,10 +27,11 @@ class UsersController extends Controller
         ]);
         //插入到数据库
         $user = User::create([
-            'name'=> $request->name,
-            'email'=>$request->email,
-            'password'=>$request->bcrypt($request->password),
-         ]);
-
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+        session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
+        return redirect()->route('users.show', [$user]);
     }
 }
