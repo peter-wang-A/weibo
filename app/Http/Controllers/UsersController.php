@@ -21,10 +21,16 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|uniqid:users|max:50',
+            'name' => 'required|unique:users|max:50',
             'email' => 'required|email|unique:users|max:255',
             'password' => 'required|confirmed|min:6'
         ]);
-        return;
+        //插入到数据库
+        $user = User::create([
+            'name'=> $request->name,
+            'email'=>$request->email,
+            'password'=>$request->bcrypt($request->password),
+         ]);
+
     }
 }
