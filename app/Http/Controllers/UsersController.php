@@ -15,9 +15,9 @@ class UsersController extends Controller
         //     'except'=>['show','create','store']
         // ]);
         $this->middleware('auth', [
-            'except' => ['create', 'store']
+            'except' => ['create', 'store','index']
         ]);
-        //只让未登录用户访问注册页面
+        //只有未登录用户才能访问的页面
         $this->middleware('guest', [
             'only' => ['create']
         ]);
@@ -80,5 +80,12 @@ class UsersController extends Controller
     public function index(){
         $users = User::paginate(10);
         return view('users.index',compact('users'));
+    }
+    //删除用户
+    public function destroy(User $user){
+        $this->authorize('destroy',$user);
+        $user->delete();
+        session()->flash('success','成功删除用户!');
+        return back();
     }
 }
