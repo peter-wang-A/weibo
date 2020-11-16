@@ -37,3 +37,9 @@ Route::get('signup/confirm/{token}', 'UsersController@confirmEmail')->name('conf
 
 //微博列表增删改查
 Route::resource('statuses', 'StatusesController', ['only' => ['store', 'destroy']]);
+
+
+//粉丝及关注人列表
+
+Route::get('/users/{user}/followings', 'UsersController@followings')->name('users.followings'); //显示用户的关注人列表
+Route::get('/users/{user}/followers', 'UsersController@followers')->name('users.followers'); //显示用户的粉丝列表

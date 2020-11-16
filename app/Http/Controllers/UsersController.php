@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Auth;
+use Illuminate\Contracts\Pagination\Paginator;
 use Mail;
 
 class UsersController extends Controller
@@ -32,7 +33,7 @@ class UsersController extends Controller
     public function show(User $user)
     {
         $statuses = $user->statuses()->orderBy('created_at', 'desc')->paginate(30);
-        return view('users.show', compact('user','statuses'));
+        return view('users.show', compact('user', 'statuses'));
     }
     //用户注册
     public function store(Request $request)
@@ -132,5 +133,20 @@ class UsersController extends Controller
         Auth::login($user);
         session()->flash('success', '恭喜，成功登录');
         return redirect()->route('users.show', [$user]);
+    }
+
+    //followings 显示用的关注人列表
+    public function followings(User $user)
+    {
+        $users = $user->followings()->paginate(30);
+        $title = $user->name . '关注的人';
+        return view('users.show_follow', compact('users', 'title'));
+    }
+    //显示粉丝列表
+    public function followers(User $user)
+    {
+        $users = $user->followers()->paginate(30);
+        $title = $user->name . '的粉丝';
+        return view('users.show_follow', compact('users', 'title'));
     }
 }
