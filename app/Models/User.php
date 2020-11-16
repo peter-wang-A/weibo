@@ -90,7 +90,7 @@ class User extends Authenticatable
             $user_ids = compact("user_ids");
         }
         //再关注人列表里添加关注人，存在则不添加
-        $this->followings()->sync('user_ids', false);
+        $this->followings()->sync($user_ids, false);
     }
 
     //取消
