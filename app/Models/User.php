@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Illuminate\Support\Str;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -35,10 +37,11 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public static function boot(){
+    public static function boot()
+    {
         parent::boot();
-        static::creating(function ($user){
-            $user->activation_token=str::random(10);
+        static::creating(function ($user) {
+            $user->activation_token = str::random(10);
         });
     }
 
@@ -46,9 +49,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-      //用户头像
-      public function gravatar($size='100'){
+    //用户头像
+    public function gravatar($size = '100')
+    {
         $hash = md5(strtolower(trim($this->attributes['email'])));
         return "http://www.gravatar.com/avatar/$hash?s=$size";
+    }
+
+
+    // 一对多关系,一个用户有多条微博
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
     }
 }
