@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Auth;
+use App\Models\Status;
 
 class StatusesController extends Controller
 {
@@ -13,7 +14,7 @@ class StatusesController extends Controller
         $this->middleware('auth');
     }
 
-    //创建用户
+    //创建微博
     public function store(Request $request)
     {
         //非空验证
@@ -28,4 +29,14 @@ class StatusesController extends Controller
         session()->flash('success', '发布成功！');
         return redirect()->back();
     }
+
+
+    //删除微博
+  public function destroy(Status $status){
+      //权限验证
+    $this->authorize('destroy',$status);
+    $status->delete();
+    session()->flash('success','删除成功');
+    return redirect()->back();
+  }
 }
