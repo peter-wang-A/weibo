@@ -16,7 +16,7 @@ class UsersController extends Controller
         //     'except'=>['show','create','store']
         // ]);
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store', 'index', 'confirmEmail','signup']
+            'except' => ['show', 'create', 'store', 'index', 'confirmEmail', 'signup']
         ]);
         //只有未登录用户才能访问的页面
         $this->middleware('guest', [
@@ -31,7 +31,8 @@ class UsersController extends Controller
     //显示用户页面
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        $statuses = $user->statuses()->orderBy('created_at', 'desc')->paginate(30);
+        return view('users.show', compact('user','statuses'));
     }
     //用户注册
     public function store(Request $request)
