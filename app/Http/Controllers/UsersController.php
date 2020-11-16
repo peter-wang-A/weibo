@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Auth;
+use Mail;
 
 class UsersController extends Controller
 {
     public function __construct()
     {
-        //中间件过滤，except 方法过滤不需要登录页面，其他马面登录后菜课访问
+        //中间件过滤，except 方法过滤不需要登录页面，其他页面登录后可访问
         // $this->middleware('auth',[
         //     'except'=>['show','create','store']
         // ]);
         $this->middleware('auth', [
-            'except' => ['create', 'store','index']
+            'except' => ['show', 'create', 'store', 'index', 'confirmEmail','signup']
         ]);
         //只有未登录用户才能访问的页面
         $this->middleware('guest', [
@@ -46,9 +47,9 @@ class UsersController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
-        Auth::login($user);
-        session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
-        return redirect()->route('users.show', [$user]);
+        $this->sendEmailConfirmationTo($user);
+        session()->flash('success', '验证邮件已发送到你的注册邮箱上，请注意查收。');
+        return redirect('/');
     }
     //编辑资料页面
     public function edit(User $user)
@@ -77,15 +78,58 @@ class UsersController extends Controller
         return redirect()->route('users.show', $user->id);
     }
     //用户列表
-    public function index(){
+    public function index()
+    {
         $users = User::paginate(10);
-        return view('users.index',compact('users'));
+        return view('users.index', compact('users'));
     }
     //删除用户
-    public function destroy(User $user){
-        $this->authorize('destroy',$user);
+    public function destroy(User $user)
+    {
+        $this->authorize('destroy', $user);
         $user->delete();
-        session()->flash('success','成功删除用户!');
+        session()->flash('success', '成功删除用户!');
         return back();
+    }
+
+    //发送邮件给指定用户
+    // public function sendEmailConfirmationTo($user)
+    // {
+    //     $view = 'emails.confirm';
+    //     $data = compact('user');
+    //     $from = 'summer@example.com';
+    //     $name = 'Summer';
+    //     $to = $user->email;
+    //     $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
+
+    //     Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+    //         $message->from($from, $name)->to($to)->subject($subject);
+    //     });
+    // }
+    protected function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $from = 'summer@example.com';
+        $name = 'Summer';
+        $to = $user->email;
+        $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
+
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+            $message->from($from, $name)->to($to)->subject($subject);
+        });
+    }
+
+    //激活路由
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token', $token)->firstOrFail();
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
+        Auth::login($user);
+        session()->flash('success', '恭喜，成功登录');
+        return redirect()->route('users.show', [$user]);
     }
 }
