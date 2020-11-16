@@ -34,3 +34,6 @@ Route::delete('logout', 'SessionsController@destroy')->name('logout');//销毁�
 
 //激活路由
 Route::get('signup/confirm/{token}', 'UsersController@confirmEmail')->name('confirm_email');
+
+//微博列表增删改查
+Route::resource('statuses', 'StatusesController', ['only' => ['store', 'destroy']]);
