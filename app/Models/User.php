@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Illuminate\Support\Str;
+use Auth;
 
 class User extends Authenticatable
 {
@@ -66,7 +67,12 @@ class User extends Authenticatable
     //取出所有发布的微博并排序
     public function feed()
     {
-        return $this->statuses()->orderBy('created_at', 'desc');
+        $user_ids = $this->followings->pluck('id')->toArray();
+        array_push($user_ids,$this->id);
+
+        return Status::whereIn('user_id', $user_ids)
+                              ->with('user')
+                              ->orderBy('created_at', 'desc');
     }
 
 
@@ -99,12 +105,13 @@ class User extends Authenticatable
         if (!is_array($user_ids)) {
             $user_ids = compact('user_ids');
         }
-        $this->followings()->detach('user_ids');
+        $this->followings()->detach($user_ids);
     }
 
+
     //判断当前登录的用户 A 是否关注了 B
-    public function is_followings($user_ids)
+    public function isFollowing($user_id)
     {
-        $this->followings()->contains($user_ids);
+        return $this->followings->contains($user_id);
     }
 }
